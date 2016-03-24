@@ -56,14 +56,11 @@ task dist(type: Copy) {
         from 'src/main/ressources/config/config.yaml'
         into 'build/dist'
     }
-    copy {
-        from 'build/launch4j/reddit-wallpaper-changer.exe'
-        into 'build/dist'
-    }
 }
 
 launch4j {
     mainClassName = 'fr.maugin.thomas.App'
+    outfile= '../dist/reddit-wallpaper-changer.exe'
     dontWrapJar = false
     headerType = 'gui'
     chdir = '.'
