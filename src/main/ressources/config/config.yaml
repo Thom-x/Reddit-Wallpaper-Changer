@@ -1,0 +1,12 @@
+subreddits:
+  - SpacePorn
+  - EarthPorn
+  - SkyPorn
+  - ExposurePorn
+  - aww
+  - MinimalWallpaper
+  - WQHD_Wallpaper
+  - HighRes
+interval: 1600
+clientId: clientId
+clientSecret: clientSecret
