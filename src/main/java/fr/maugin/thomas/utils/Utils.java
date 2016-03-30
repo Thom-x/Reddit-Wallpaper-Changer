@@ -43,8 +43,8 @@ public class Utils {
      * @return
      * @throws URISyntaxException
      */
-    public static File getAppPath() throws URISyntaxException {
-        File appPath = new File(App.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+    public static File getAppPath(Class clazz) throws URISyntaxException {
+        File appPath = new File(clazz.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
         return appPath.isFile() ? appPath.getParentFile() : appPath;
     }
 
@@ -58,7 +58,7 @@ public class Utils {
         FileHandler fh;
         try {
             // This block configure the logger with handler and formatter
-            File logPath = new File(Utils.getAppPath().getAbsolutePath() + LOG_FILE);
+            File logPath = new File(Utils.getAppPath(App.class).getAbsolutePath() + LOG_FILE);
             if(!logPath.exists()) {
                 logPath.createNewFile();
             }

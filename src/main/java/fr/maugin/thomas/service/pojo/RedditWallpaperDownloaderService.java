@@ -1,7 +1,10 @@
 package fr.maugin.thomas.service.pojo;
 
 import com.google.common.collect.Lists;
+import fr.maugin.thomas.App;
 import fr.maugin.thomas.domain.api.IConfiguration;
+import fr.maugin.thomas.domain.pojo.Wallpaper;
+import fr.maugin.thomas.domain.api.IWallpaper;
 import fr.maugin.thomas.service.api.IWallpaperDownloaderService;
 import fr.maugin.thomas.utils.Utils;
 import net.dean.jraw.RedditClient;
@@ -50,7 +53,7 @@ public class RedditWallpaperDownloaderService implements IWallpaperDownloaderSer
     private static final int MAX_IMAGE_FETCH = 50;
     private static final Logger logger = Utils.getLogger(RedditWallpaperDownloaderService.class);
     private static final int TIMEOUT = 60;
-    private static final String DUMMY_STRING = "dummy";
+    private static final IWallpaper DUMMY_WALLPAPER = new Wallpaper("dummy", "dummy", "dummy");
 
     private final String clientId;
     private final String clientSecret;
@@ -61,7 +64,7 @@ public class RedditWallpaperDownloaderService implements IWallpaperDownloaderSer
     }
 
     @Override
-    public Observable<String> getWallpaperPath(final IConfiguration config) {
+    public Observable<IWallpaper> getWallpaper(final IConfiguration config) {
         FluentRedditClient fluent;
         try {
             fluent = getFluentRedditClient(clientId, clientSecret);
@@ -84,7 +87,7 @@ public class RedditWallpaperDownloaderService implements IWallpaperDownloaderSer
                 .flatMap(getWallpaperPath(fluent, subredditsList, randomGenerator, sha));
     }
 
-    private Func1<Long, Observable<String>> getWallpaperPath(FluentRedditClient fluent, List<String> subredditsList, Random randomGenerator, MessageDigest sha) {
+    private Func1<Long, Observable<IWallpaper>> getWallpaperPath(FluentRedditClient fluent, List<String> subredditsList, Random randomGenerator, MessageDigest sha) {
         return i -> Observable.just(subredditsList.get(randomGenerator.nextInt(subredditsList.size())))
                 .doOnNext(subreddit -> System.out.println("Choosen subreddit : " + subreddit))
                 .concatMap(subreddit -> Observable.from(fluent.subreddit(subreddit)
@@ -100,7 +103,7 @@ public class RedditWallpaperDownloaderService implements IWallpaperDownloaderSer
                         .flatMap(DOWNLOAD_IMAGE)
                         .filter(FILTER_BY_SIZE)
                         .flatMap(writeFile(sha, submission)))
-                .startWith(DUMMY_STRING)
+                .startWith(DUMMY_WALLPAPER)
                 .timeout(TIMEOUT, SECONDS)
                 .skip(1)
                 .onErrorResumeNext((e) -> {
@@ -110,10 +113,10 @@ public class RedditWallpaperDownloaderService implements IWallpaperDownloaderSer
                 .take(1);
     }
 
-    private Func1<BufferedImage, Observable<String>> writeFile(MessageDigest sha, Submission submission) {
+    private Func1<BufferedImage, Observable<IWallpaper>> writeFile(MessageDigest sha, Submission submission) {
         return imgBuffer -> {
             try {
-                final File appPath = Utils.getAppPath();
+                final File appPath = Utils.getAppPath(App.class);
                 final File wallpapersPath = new File(appPath.getAbsolutePath() + TMP_WALLPAPER_FOLDER);
                 if(!wallpapersPath.exists())
                     wallpapersPath.mkdir();
@@ -122,7 +125,7 @@ public class RedditWallpaperDownloaderService implements IWallpaperDownloaderSer
                 logger.info("Changing wallpaper : " + submission.getUrl());
                 logger.info("Title : " + submission.getTitle());
                 logger.info("Subreddit : " + submission.getSubredditName());
-                return just(imagePath);
+                return just(new Wallpaper(imagePath, submission.getTitle(), submission.getSubredditName()));
             } catch (IOException | URISyntaxException e) {
                 e.printStackTrace();
                 return empty();

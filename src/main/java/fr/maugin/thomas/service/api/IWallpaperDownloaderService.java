@@ -1,6 +1,7 @@
 package fr.maugin.thomas.service.api;
 
 import fr.maugin.thomas.domain.api.IConfiguration;
+import fr.maugin.thomas.domain.api.IWallpaper;
 import rx.Observable;
 
 /**
@@ -15,6 +16,6 @@ public interface IWallpaperDownloaderService {
      * @param config
      * @return
      */
-    Observable<String> getWallpaperPath(IConfiguration config);
+    Observable<IWallpaper> getWallpaper(IConfiguration config);
 
 }

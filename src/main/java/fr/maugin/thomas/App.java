@@ -30,7 +30,7 @@ public class App {
 
         IConfiguration config = null;
         Yaml yaml = new Yaml();
-        try( InputStream in = Files.newInputStream(Paths.get(Utils.getAppPath().getAbsolutePath() + "\\config.yaml") ) ) {
+        try( InputStream in = Files.newInputStream(Paths.get(Utils.getAppPath(App.class).getAbsolutePath() + "\\config.yaml") ) ) {
             config = yaml.loadAs(in, Configuration.class);
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -38,8 +38,8 @@ public class App {
         }
 
         final IWallpaperDownloaderService app = new RedditWallpaperDownloaderService(config.getClientId(), config.getClientSecret());
-        app.getWallpaperPath(config)
-                .subscribe(imgPath -> wallpaperChanger.changeWallpaper(new File(imgPath)), (e) -> {
+        app.getWallpaper(config)
+                .subscribe(wallpaper -> wallpaperChanger.changeWallpaper(new File(wallpaper.getPath())), (e) -> {
                     e.printStackTrace();
                     Throwables.propagate(e);
                 });
