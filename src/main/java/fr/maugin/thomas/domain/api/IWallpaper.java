@@ -11,4 +11,6 @@ public interface IWallpaper {
     String getTitle();
 
     String getSubreddit();
+
+    String getLink();
 }

@@ -53,7 +53,7 @@ public class RedditWallpaperDownloaderService implements IWallpaperDownloaderSer
     private static final int MAX_IMAGE_FETCH = 50;
     private static final Logger logger = Utils.getLogger(RedditWallpaperDownloaderService.class);
     private static final int TIMEOUT = 60;
-    private static final IWallpaper DUMMY_WALLPAPER = new Wallpaper("dummy", "dummy", "dummy");
+    private static final IWallpaper DUMMY_WALLPAPER = new Wallpaper("dummy", "dummy", "dummy", "dummy");
 
     private final String clientId;
     private final String clientSecret;
@@ -125,7 +125,7 @@ public class RedditWallpaperDownloaderService implements IWallpaperDownloaderSer
                 logger.info("Changing wallpaper : " + submission.getUrl());
                 logger.info("Title : " + submission.getTitle());
                 logger.info("Subreddit : " + submission.getSubredditName());
-                return just(new Wallpaper(imagePath, submission.getTitle(), submission.getSubredditName()));
+                return just(new Wallpaper(imagePath, submission.getTitle(), submission.getSubredditName(), submission.getUrl()));
             } catch (IOException | URISyntaxException e) {
                 e.printStackTrace();
                 return empty();

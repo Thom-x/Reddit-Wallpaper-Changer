@@ -3,20 +3,25 @@ package fr.maugin.thomas.view.controller;
 import com.google.common.base.Throwables;
 import fr.maugin.thomas.App;
 import fr.maugin.thomas.domain.api.IConfiguration;
+import fr.maugin.thomas.domain.api.IWallpaper;
 import fr.maugin.thomas.domain.pojo.Configuration;
 import fr.maugin.thomas.service.api.IWallpaperDownloaderService;
 import fr.maugin.thomas.service.pojo.RedditWallpaperDownloaderService;
 import fr.maugin.thomas.service.pojo.WallpaperChanger;
 import fr.maugin.thomas.utils.Utils;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 import org.yaml.snakeyaml.Yaml;
+import rx.Observable;
 import rx.schedulers.JavaFxScheduler;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,19 +40,34 @@ import java.util.ResourceBundle;
 public class AppController implements Initializable {
 
     @FXML
-    ImageView imageView;
+    protected ImageView next;
 
     @FXML
-    Label subreddit;
+    protected ImageView imageView;
 
     @FXML
-    Label title;
+    protected ImageView splash;
+
+    @FXML
+    protected Label subreddit;
+
+    @FXML
+    protected Label title;
+
+    private PublishSubject<Observable<IWallpaper>> wallpaperPublishSubject = PublishSubject.create();
+    private IWallpaperDownloaderService app;
+    private IConfiguration config;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
+        next.setVisible(false);
+        next.setImage(new Image(getClass().getClassLoader().getResourceAsStream("images/next.png")));
+        splash.setImage(new Image(getClass().getClassLoader().getResourceAsStream("images/splash.png")));
+
         final WallpaperChanger wallpaperChanger = new WallpaperChanger();
 
-        IConfiguration config = null;
+        config = null;
         Yaml yaml = new Yaml();
         try (InputStream in = Files.newInputStream(Paths.get(Utils.getAppPath(App.class).getAbsolutePath() + "\\config.yaml"))) {
             config = yaml.loadAs(in, Configuration.class);
@@ -59,12 +79,15 @@ public class AppController implements Initializable {
         subreddit.setVisible(false);
         title.setVisible(false);
 
-        final IWallpaperDownloaderService app = new RedditWallpaperDownloaderService(config.getClientId(), config.getClientSecret());
-        app.getWallpaper(config)
-                .subscribeOn(Schedulers.io())
+        app = new RedditWallpaperDownloaderService(config.getClientId(), config.getClientSecret());
+
+        wallpaperPublishSubject
+                .switchMap(wallpapers -> wallpapers)
                 .observeOn(JavaFxScheduler.getInstance())
                 .subscribe(wallpaper -> {
                     final Image image = new Image("file:///" + wallpaper.getPath());
+                    next.setVisible(true);
+                    splash.setVisible(false);
                     subreddit.setVisible(true);
                     title.setVisible(true);
                     imageView.setImage(image);
@@ -77,5 +100,12 @@ public class AppController implements Initializable {
                     e.printStackTrace();
                     Throwables.propagate(e);
                 });
+
+        wallpaperPublishSubject.onNext(app.getWallpaper(config).subscribeOn(Schedulers.io()));
+    }
+
+    @FXML
+    public void handleNext(Event event) {
+        wallpaperPublishSubject.onNext(app.getWallpaper(config).subscribeOn(Schedulers.io()));
     }
 }

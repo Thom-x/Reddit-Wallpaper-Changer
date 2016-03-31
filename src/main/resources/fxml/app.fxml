@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 <?import com.jfoenix.controls.*?>
 <?import javafx.scene.control.*?>
@@ -8,23 +10,62 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.maugin.thomas.view.controller.AppController">
-   <left>
-      <ImageView fx:id="imageView" fitHeight="180.0" fitWidth="280.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
-         <BorderPane.margin>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </BorderPane.margin>
-      </ImageView>
-   </left>
-   <center>
-      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.maugin.thomas.view.controller.AppController">
+   <children>
+      <VBox alignment="CENTER" prefHeight="400.0" prefWidth="600.0">
          <children>
-            <Label fx:id="subreddit" text="Label" />
-            <Label fx:id="title" text="Label" />
+            <ImageView fx:id="splash" fitHeight="256.0" fitWidth="320.0" layoutX="-410.0" pickOnBounds="true" preserveRatio="true">
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </ImageView>
          </children>
-         <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </padding>
       </VBox>
-   </center>
-</BorderPane>
+      <VBox alignment="CENTER" prefHeight="400.0" prefWidth="600.0">
+         <children>
+            <ImageView fx:id="imageView" fitHeight="410.0" fitWidth="610.0" pickOnBounds="true" preserveRatio="true" />
+         </children>
+      </VBox>
+      <Rectangle arcHeight="5.0" arcWidth="5.0" height="146.0" layoutY="-76.0" stroke="TRANSPARENT" strokeType="INSIDE" translateY="340.0" width="610.0">
+         <fill>
+            <LinearGradient endX="1.0" endY="0.519047619047619" startX="1.0">
+               <stops>
+                  <Stop color="#ffffff00" />
+                  <Stop color="#ffffff00" offset="0.007662835249042145" />
+                  <Stop color="BLACK" offset="1.0" />
+               </stops>
+            </LinearGradient>
+         </fill>
+      </Rectangle>
+      <Label fx:id="title" layoutX="8.0" layoutY="370.0" text="Label" textFill="#848484">
+         <font>
+            <Font name="Candara" size="26.0" />
+         </font>
+      </Label>
+      <Label fx:id="subreddit" layoutX="10.0" layoutY="350.0" text="Label" textFill="#848484" />
+      <Rectangle arcHeight="5.0" arcWidth="5.0" height="70.0" layoutX="468.0" layoutY="340.0" stroke="TRANSPARENT" strokeType="INSIDE" width="142.0">
+         <fill>
+            <LinearGradient endX="1.0" endY="1.0" startX="0.18095238095238095" startY="1.0">
+               <stops>
+                  <Stop color="#ffffff00" />
+                  <Stop color="#ffffff00" offset="0.007662835249042145" />
+                  <Stop color="BLACK" offset="0.3488564995852589" />
+                  <Stop color="BLACK" offset="1.0" />
+               </stops>
+            </LinearGradient>
+         </fill>
+      </Rectangle>
+      <ImageView fx:id="next" fitHeight="50.0" fitWidth="50.0" layoutX="554.0" layoutY="356.0" onMouseClicked="#handleNext" pickOnBounds="true" preserveRatio="true" />
+      <Rectangle arcHeight="5.0" arcWidth="5.0" height="146.0" stroke="TRANSPARENT" strokeType="INSIDE" width="610.0">
+         <fill>
+            <LinearGradient endX="1.0" endY="0.3095238095238094" startX="1.0" startY="0.9">
+               <stops>
+                  <Stop color="#ffffff00" />
+                  <Stop color="#ffffff00" offset="0.007662835249042145" />
+                  <Stop color="BLACK" offset="1.0" />
+               </stops>
+            </LinearGradient>
+         </fill>
+      </Rectangle>
+   </children>
+</Pane>

@@ -5,10 +5,12 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.*;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.Image;
 import java.io.IOException;
 import java.net.URL;
 
@@ -52,8 +54,9 @@ public class GUIApp extends Application {
         Platform.setImplicitExit(false);
 
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/app.fxml"));
+        stage.getIcons().add(new javafx.scene.image.Image(getClass().getClassLoader().getResourceAsStream("icon/icon-big.png")));
         stage.setTitle(APP_TITLE);
-        stage.setScene(new Scene(root, 600, 200));
+        stage.setScene(new Scene(root, 600, 400));
         stage.setResizable(false);
         stage.show();
     }
