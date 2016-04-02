@@ -32,6 +32,10 @@ public class GUIApp extends Application {
     public void start(Stage primaryStage) throws Exception {
         this.stage = primaryStage;
 
+        stage.setOnCloseRequest(e -> Platform.runLater(() -> {
+            Platform.exit();
+        }));
+
         JavaFxObservable.fromObservableValue(stage.iconifiedProperty())
                 .filter(v -> v)
                 .subscribe(iconified -> {
@@ -53,6 +57,7 @@ public class GUIApp extends Application {
                         }
                     });
                 });
+
 
         Platform.setImplicitExit(false);
 
