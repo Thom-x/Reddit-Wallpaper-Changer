@@ -1,6 +1,5 @@
 package fr.maugin.thomas.view.controller;
 
-import com.google.common.base.Throwables;
 import fr.maugin.thomas.App;
 import fr.maugin.thomas.domain.api.IConfiguration;
 import fr.maugin.thomas.domain.api.IWallpaper;
@@ -16,7 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
+import net.dean.jraw.http.oauth.OAuthException;
 import org.yaml.snakeyaml.Yaml;
 import rx.Observable;
 import rx.schedulers.JavaFxScheduler;
@@ -30,7 +29,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.ResourceBundle;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 /**
  * User: thoma
@@ -38,6 +40,8 @@ import java.util.ResourceBundle;
  * Time: 18:59
  */
 public class AppController implements Initializable {
+
+    private static final Logger logger = Utils.getLogger(AppController.class);
 
     @FXML
     protected ImageView next;
@@ -54,6 +58,9 @@ public class AppController implements Initializable {
     @FXML
     protected Label title;
 
+    @FXML
+    protected Label delay;
+
     private PublishSubject<Observable<IWallpaper>> wallpaperPublishSubject = PublishSubject.create();
     private IWallpaperDownloaderService app;
     private IConfiguration config;
@@ -62,6 +69,10 @@ public class AppController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
         next.setVisible(false);
+        delay.setVisible(false);
+        subreddit.setVisible(false);
+        title.setVisible(false);
+
         next.setImage(new Image(getClass().getClassLoader().getResourceAsStream("images/next.png")));
         splash.setImage(new Image(getClass().getClassLoader().getResourceAsStream("images/splash.png")));
 
@@ -76,13 +87,33 @@ public class AppController implements Initializable {
             System.exit(1);
         }
 
-        subreddit.setVisible(false);
-        title.setVisible(false);
+        try {
+            app = new RedditWallpaperDownloaderService(config.getClientId(), config.getClientSecret());
+        } catch (OAuthException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
 
-        app = new RedditWallpaperDownloaderService(config.getClientId(), config.getClientSecret());
-
-        wallpaperPublishSubject
+        final Observable<IWallpaper> wallpaperObservable = getWallpaperObservable()
                 .switchMap(wallpapers -> wallpapers)
+                .retry()
+                .share();
+
+        wallpaperObservable
+                .switchMap(nil -> Observable.interval(1, TimeUnit.SECONDS) //
+                        .map(elapsed -> config.getInterval() - elapsed))
+                .filter(remaining -> remaining >= 0)
+                .map(Duration::ofSeconds)
+                .map(duration -> String.format("%d:%02d%n", duration.toMinutes(), duration.minusMinutes(duration.toMinutes()).getSeconds()))
+                .observeOn(JavaFxScheduler.getInstance())
+                .subscribe(text -> {
+                    delay.setVisible(true);
+                    delay.setText(text);
+                }, (e) -> {
+                    logger.warning(e.toString());
+                });
+
+        wallpaperObservable
                 .observeOn(JavaFxScheduler.getInstance())
                 .subscribe(wallpaper -> {
                     final Image image = new Image("file:///" + wallpaper.getPath());
@@ -97,8 +128,7 @@ public class AppController implements Initializable {
                     title.setTooltip(new Tooltip(wallpaper.getTitle()));
                     wallpaperChanger.changeWallpaper(new File(wallpaper.getPath()));
                 }, (e) -> {
-                    e.printStackTrace();
-                    Throwables.propagate(e);
+                    logger.warning(e.toString());
                 });
 
         wallpaperPublishSubject.onNext(app.getWallpaper(config).subscribeOn(Schedulers.io()));
@@ -108,4 +138,9 @@ public class AppController implements Initializable {
     public void handleNext(Event event) {
         wallpaperPublishSubject.onNext(app.getWallpaper(config).subscribeOn(Schedulers.io()));
     }
+
+    private Observable<Observable<IWallpaper>> getWallpaperObservable() {
+        return wallpaperPublishSubject.share();
+    }
+
 }

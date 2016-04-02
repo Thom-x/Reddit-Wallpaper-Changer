@@ -5,12 +5,11 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.image.*;
 import javafx.stage.Stage;
+import rx.observables.JavaFxObservable;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.Image;
 import java.io.IOException;
 import java.net.URL;
 
@@ -32,25 +31,29 @@ public class GUIApp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.stage = primaryStage;
-        stage.setOnCloseRequest(e -> Platform.runLater(() -> {
-            stage.hide();
-            invokeLater(() -> {
-                final TrayIcon trayIcon = getTray();
-                SystemTray tray = getSystemTray();
-                try {
-                    tray.add(trayIcon);
-                    if (firstTime) {
-                        trayIcon.displayMessage(APP_TITLE,
-                                "The application has been minimized",
-                                TrayIcon.MessageType.INFO);
-                        firstTime = false;
-                    }
-                } catch (AWTException e2) {
-                    e2.printStackTrace();
-                    Platform.exit();
-                }
-            });
-        }));
+
+        JavaFxObservable.fromObservableValue(stage.iconifiedProperty())
+                .filter(v -> v)
+                .subscribe(iconified -> {
+                    stage.hide();
+                    invokeLater(() -> {
+                        final TrayIcon trayIcon = getTray();
+                        SystemTray tray = getSystemTray();
+                        try {
+                            tray.add(trayIcon);
+                            if (firstTime) {
+                                trayIcon.displayMessage(APP_TITLE,
+                                        "The application has been minimized",
+                                        TrayIcon.MessageType.INFO);
+                                firstTime = false;
+                            }
+                        } catch (AWTException e2) {
+                            e2.printStackTrace();
+                            Platform.exit();
+                        }
+                    });
+                });
+
         Platform.setImplicitExit(false);
 
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/app.fxml"));
@@ -123,6 +126,7 @@ public class GUIApp extends Application {
     private void showStage(TrayIcon trayIcon) {
         if (stage != null) {
             getSystemTray().remove(trayIcon);
+            stage.setIconified(false);
             stage.show();
             stage.toFront();
         }

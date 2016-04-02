@@ -67,5 +67,10 @@
             </LinearGradient>
          </fill>
       </Rectangle>
+      <Label fx:id="delay" layoutX="556.0" layoutY="6.0" text="Label" textFill="#848484">
+         <font>
+            <Font name="Candara" size="19.0" />
+         </font>
+      </Label>
    </children>
 </Pane>
