@@ -22,14 +22,18 @@ import rx.schedulers.JavaFxScheduler;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -62,6 +66,7 @@ public class AppController implements Initializable {
     protected Label delay;
 
     private PublishSubject<Observable<IWallpaper>> wallpaperPublishSubject = PublishSubject.create();
+    private Optional<URI> wallpaperLinkOpt = Optional.empty();
     private IWallpaperDownloaderService app;
     private IConfiguration config;
 
@@ -121,6 +126,10 @@ public class AppController implements Initializable {
                     splash.setVisible(false);
                     subreddit.setVisible(true);
                     title.setVisible(true);
+                    try {
+                        wallpaperLinkOpt = Optional.of(new URL(wallpaper.getLink()).toURI());
+                    } catch (URISyntaxException | MalformedURLException e) {
+                    }
                     imageView.setImage(image);
                     subreddit.setText(wallpaper.getSubreddit());
                     subreddit.setTooltip(new Tooltip(wallpaper.getSubreddit()));
@@ -139,8 +148,21 @@ public class AppController implements Initializable {
         wallpaperPublishSubject.onNext(app.getWallpaper(config).subscribeOn(Schedulers.io()));
     }
 
+    @FXML
+    public void handleLink(Event event) {
+        wallpaperLinkOpt.ifPresent(wallpaperLink -> {
+            Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+            if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+                try {
+                    desktop.browse(wallpaperLink);
+                } catch (Exception ignored) {
+                    System.err.println(ignored);
+                }
+            }
+        });
+    }
+
     private Observable<Observable<IWallpaper>> getWallpaperObservable() {
         return wallpaperPublishSubject.share();
     }
-
 }

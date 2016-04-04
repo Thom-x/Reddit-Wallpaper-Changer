@@ -37,7 +37,7 @@
             </LinearGradient>
          </fill>
       </Rectangle>
-      <Label fx:id="title" layoutX="10.0" layoutY="363.0" text="Label" textFill="#848484">
+      <Label fx:id="title" layoutX="10.0" layoutY="363.0" onMouseClicked="#handleLink" text="Label" textFill="#848484">
          <font>
             <Font name="Ebrima" size="26.0" />
          </font>
