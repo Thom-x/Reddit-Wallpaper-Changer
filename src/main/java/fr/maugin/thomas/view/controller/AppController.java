@@ -1,12 +1,9 @@
 package fr.maugin.thomas.view.controller;
 
-import fr.maugin.thomas.App;
 import fr.maugin.thomas.domain.api.IConfiguration;
 import fr.maugin.thomas.domain.api.IWallpaper;
-import fr.maugin.thomas.domain.pojo.Configuration;
+import fr.maugin.thomas.service.api.IWallpaperChanger;
 import fr.maugin.thomas.service.api.IWallpaperDownloaderService;
-import fr.maugin.thomas.service.pojo.RedditWallpaperDownloaderService;
-import fr.maugin.thomas.service.pojo.WallpaperChanger;
 import fr.maugin.thomas.utils.Utils;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -15,23 +12,18 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import net.dean.jraw.http.oauth.OAuthException;
-import org.yaml.snakeyaml.Yaml;
 import rx.Observable;
 import rx.schedulers.JavaFxScheduler;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
+import javax.inject.Inject;
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -69,6 +61,17 @@ public class AppController implements Initializable {
     private Optional<URI> wallpaperLinkOpt = Optional.empty();
     private IWallpaperDownloaderService app;
     private IConfiguration config;
+    private IWallpaperChanger wallpaperChanger;
+
+    @Inject
+    public void setDependencies(IWallpaperDownloaderService wallpaperDownloaderService,
+                                IConfiguration config,
+                                IWallpaperChanger wallpaperChanger) {
+
+        this.app = wallpaperDownloaderService;
+        this.config = config;
+        this.wallpaperChanger = wallpaperChanger;
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -80,24 +83,6 @@ public class AppController implements Initializable {
 
         next.setImage(new Image(getClass().getClassLoader().getResourceAsStream("images/next.png")));
         splash.setImage(new Image(getClass().getClassLoader().getResourceAsStream("images/splash.png")));
-
-        final WallpaperChanger wallpaperChanger = new WallpaperChanger();
-
-        config = null;
-        Yaml yaml = new Yaml();
-        try (InputStream in = Files.newInputStream(Paths.get(Utils.getAppPath(App.class).getAbsolutePath() + "\\config.yaml"))) {
-            config = yaml.loadAs(in, Configuration.class);
-        } catch (URISyntaxException | IOException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-
-        try {
-            app = new RedditWallpaperDownloaderService(config.getClientId(), config.getClientSecret());
-        } catch (OAuthException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
 
         final Observable<IWallpaper> wallpaperObservable = getWallpaperObservable()
                 .switchMap(wallpapers -> wallpapers)
@@ -128,7 +113,7 @@ public class AppController implements Initializable {
                     title.setVisible(true);
                     try {
                         wallpaperLinkOpt = Optional.of(new URL(wallpaper.getLink()).toURI());
-                    } catch (URISyntaxException | MalformedURLException e) {
+                    } catch (URISyntaxException | MalformedURLException ignored) {
                     }
                     imageView.setImage(image);
                     subreddit.setText(wallpaper.getSubreddit());
@@ -140,11 +125,17 @@ public class AppController implements Initializable {
                     logger.warning(e.toString());
                 });
 
-        wallpaperPublishSubject.onNext(app.getWallpaper(config).subscribeOn(Schedulers.io()));
+        next();
     }
 
     @FXML
     public void handleNext(Event event) {
+        next();
+    }
+
+    public void next() {
+        System.err.println(this);
+
         wallpaperPublishSubject.onNext(app.getWallpaper(config).subscribeOn(Schedulers.io()));
     }
 
@@ -156,7 +147,6 @@ public class AppController implements Initializable {
                 try {
                     desktop.browse(wallpaperLink);
                 } catch (Exception ignored) {
-                    System.err.println(ignored);
                 }
             }
         });

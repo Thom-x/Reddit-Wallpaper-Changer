@@ -1,11 +1,17 @@
 package fr.maugin.thomas.view;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import fr.maugin.thomas.injection.AppModule;
+import fr.maugin.thomas.view.controller.AppController;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.util.BuilderFactory;
 import rx.observables.JavaFxObservable;
 
 import javax.imageio.ImageIO;
@@ -27,6 +33,8 @@ public class GUIApp extends Application {
     private static final String APP_TITLE = "Reddit Wallpaper Changer";
     private Stage stage;
     private boolean firstTime = true;
+
+    private AppController controller = Guice.createInjector(new AppModule()).getInstance(AppController.class);
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -61,7 +69,9 @@ public class GUIApp extends Application {
 
         Platform.setImplicitExit(false);
 
-        Parent root = FXMLLoader.load(getClass().getResource("/fxml/app.fxml"));
+        BuilderFactory builderFactory = new JavaFXBuilderFactory();
+        FXMLLoader mainViewLoader = new FXMLLoader(getClass().getResource("/fxml/app.fxml"), null, builderFactory, clazz ->  controller);
+        Parent root = mainViewLoader.load();
         stage.getIcons().add(new javafx.scene.image.Image(getClass().getClassLoader().getResourceAsStream("icon/icon-big.png")));
         stage.setTitle(APP_TITLE);
         stage.setScene(new Scene(root, 600, 400));
@@ -98,6 +108,11 @@ public class GUIApp extends Application {
             MenuItem openItem = new MenuItem("Show");
             openItem.addActionListener(event -> Platform.runLater(() -> showStage(trayIcon)));
 
+            MenuItem nextItem = new MenuItem("Next");
+            nextItem.addActionListener(event -> Platform.runLater(() -> {
+                controller.next();
+            }));
+
             // to really exit the application, the user must go to the system tray icon
             // and select the exit option, this will shutdown JavaFX and remove the
             // tray icon (removing the tray icon will also shut down AWT).
@@ -109,9 +124,12 @@ public class GUIApp extends Application {
 
             // setup the popup menu for the application.
             final PopupMenu popup = new PopupMenu();
+            popup.add(nextItem);
+            popup.addSeparator();
             popup.add(openItem);
             popup.addSeparator();
             popup.add(exitItem);
+
             trayIcon.setPopupMenu(popup);
 
             // add the application tray icon to the system tray.
