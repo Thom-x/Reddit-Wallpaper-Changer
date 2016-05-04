@@ -32,7 +32,7 @@ public class GUIApp extends Application {
 
     private static final String APP_TITLE = "Reddit Wallpaper Changer";
     private Stage stage;
-    private boolean firstTime = true;
+    private boolean firstTime = false;
 
     private AppController controller = Guice.createInjector(new AppModule()).getInstance(AppController.class);
 
@@ -76,7 +76,7 @@ public class GUIApp extends Application {
         stage.setTitle(APP_TITLE);
         stage.setScene(new Scene(root, 600, 400));
         stage.setResizable(false);
-        stage.show();
+        stage.setIconified(true);
     }
 
     public static void main(String[] args) {
