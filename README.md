@@ -2,6 +2,8 @@
 
 Change your wallpaper using subreddit hot submissions images.
 
+<img src="https://github.com/Thom-x/Reddit-Wallpaper-Changer/raw/master/doc/screen.png" alt="Screenshot">
+
 ##Build
 
 `gradlew.bat dist`
