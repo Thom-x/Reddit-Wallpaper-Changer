@@ -1,7 +1,6 @@
 package fr.maugin.thomas.view;
 
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import fr.maugin.thomas.injection.AppModule;
 import fr.maugin.thomas.view.controller.AppController;
 import javafx.application.Application;
@@ -34,15 +33,13 @@ public class GUIApp extends Application {
     private Stage stage;
     private boolean firstTime = false;
 
-    private AppController controller = Guice.createInjector(new AppModule()).getInstance(AppController.class);
+    private final AppController controller = Guice.createInjector(new AppModule()).getInstance(AppController.class);
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.stage = primaryStage;
 
-        stage.setOnCloseRequest(e -> Platform.runLater(() -> {
-            Platform.exit();
-        }));
+        stage.setOnCloseRequest(e -> Platform.runLater(Platform::exit));
 
         JavaFxObservable.fromObservableValue(stage.iconifiedProperty())
                 .filter(v -> v)
@@ -70,7 +67,7 @@ public class GUIApp extends Application {
         Platform.setImplicitExit(false);
 
         BuilderFactory builderFactory = new JavaFXBuilderFactory();
-        FXMLLoader mainViewLoader = new FXMLLoader(getClass().getResource("/fxml/app.fxml"), null, builderFactory, clazz ->  controller);
+        FXMLLoader mainViewLoader = new FXMLLoader(getClass().getResource("/fxml/app.fxml"), null, builderFactory, clazz -> controller);
         Parent root = mainViewLoader.load();
         stage.getIcons().add(new javafx.scene.image.Image(getClass().getClassLoader().getResourceAsStream("icon/icon-big.png")));
         stage.setTitle(APP_TITLE);
@@ -109,9 +106,7 @@ public class GUIApp extends Application {
             openItem.addActionListener(event -> Platform.runLater(() -> showStage(trayIcon)));
 
             MenuItem nextItem = new MenuItem("Next");
-            nextItem.addActionListener(event -> Platform.runLater(() -> {
-                controller.next();
-            }));
+            nextItem.addActionListener(event -> Platform.runLater(controller::next));
 
             // to really exit the application, the user must go to the system tray icon
             // and select the exit option, this will shutdown JavaFX and remove the

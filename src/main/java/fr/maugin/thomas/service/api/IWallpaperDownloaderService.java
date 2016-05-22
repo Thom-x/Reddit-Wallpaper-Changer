@@ -12,7 +12,6 @@ import rx.Observable;
 public interface IWallpaperDownloaderService {
 
     /**
-     *
      * @param config
      * @return
      */

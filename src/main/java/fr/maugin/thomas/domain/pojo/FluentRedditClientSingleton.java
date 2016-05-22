@@ -18,9 +18,8 @@ import static net.dean.jraw.http.UserAgent.of;
  */
 public class FluentRedditClientSingleton{
 
-    private static FluentRedditClientSingleton ourInstance = new FluentRedditClientSingleton();
+    private static final FluentRedditClientSingleton ourInstance = new FluentRedditClientSingleton();
     private FluentRedditClient client = null;
-    private RedditClient redditClient = null;
 
     private FluentRedditClientSingleton() {
     }
@@ -35,7 +34,7 @@ public class FluentRedditClientSingleton{
 
         System.out.println("Connecting to  Redddit...");
         UserAgent myUserAgent = of("desktop", "fr.maugin.thomas.reddit-wallpaper-changer", "1.0", "Thom-x");
-        redditClient = new RedditClient(myUserAgent);
+        RedditClient redditClient = new RedditClient(myUserAgent);
         Credentials credentials = Credentials.userless(clientId, clientSecret, randomUUID());
         OAuthData authData = redditClient.getOAuthHelper().easyAuth(credentials);
         redditClient.authenticate(authData);

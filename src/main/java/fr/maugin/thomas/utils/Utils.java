@@ -21,16 +21,16 @@ public class Utils {
     /**
      * The byte[] returned by MessageDigest does not have a nice
      * textual representation, so some form of encoding is usually performed.
-     *
+     * <p>
      * This implementation follows the example of David Flanagan's book
      * "Java In A Nutshell", and converts a byte array into a String
      * of hex characters.
-     *
+     * <p>
      * Another popular alternative is to use a "Base64" encoding.
      */
-    public static String hexEncode(byte[] aInput){
+    public static String hexEncode(byte[] aInput) {
         StringBuilder result = new StringBuilder();
-        char[] digits = {'0', '1', '2', '3', '4','5','6','7','8','9','a','b','c','d','e','f'};
+        char[] digits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
         for (byte b : aInput) {
             result.append(digits[(b & 0xf0) >> 4]);
             result.append(digits[b & 0x0f]);
@@ -39,7 +39,6 @@ public class Utils {
     }
 
     /**
-     *
      * @return
      * @throws URISyntaxException
      */
@@ -49,7 +48,6 @@ public class Utils {
     }
 
     /**
-     *
      * @param clazz
      * @return
      */
@@ -59,7 +57,7 @@ public class Utils {
         try {
             // This block configure the logger with handler and formatter
             File logPath = new File(Utils.getAppPath(App.class).getAbsolutePath() + LOG_FILE);
-            if(!logPath.exists()) {
+            if (!logPath.exists()) {
                 logPath.createNewFile();
             }
             fh = new FileHandler(logPath.getAbsolutePath(), true);

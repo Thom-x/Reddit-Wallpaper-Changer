@@ -57,7 +57,7 @@ public class AppController implements Initializable {
     @FXML
     protected Label delay;
 
-    private PublishSubject<Observable<IWallpaper>> wallpaperPublishSubject = PublishSubject.create();
+    private final PublishSubject<Observable<IWallpaper>> wallpaperPublishSubject = PublishSubject.create();
     private Optional<URI> wallpaperLinkOpt = Optional.empty();
     private IWallpaperDownloaderService app;
     private IConfiguration config;

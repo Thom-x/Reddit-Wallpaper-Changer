@@ -10,7 +10,6 @@ import java.io.File;
 public interface IWallpaperChanger {
 
     /**
-     *
      * @param file
      */
     void changeWallpaper(final File file);

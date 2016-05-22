@@ -8,7 +8,6 @@ import fr.maugin.thomas.domain.pojo.Wallpaper;
 import fr.maugin.thomas.domain.api.IWallpaper;
 import fr.maugin.thomas.service.api.IWallpaperDownloaderService;
 import fr.maugin.thomas.utils.Utils;
-import net.dean.jraw.fluent.FluentRedditClient;
 import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.http.oauth.OAuthException;
 import net.dean.jraw.models.Listing;
@@ -54,6 +53,38 @@ public class RedditWallpaperDownloaderService implements IWallpaperDownloaderSer
 
     private final String clientId;
     private final String clientSecret;
+    private final Func1<BufferedImage, Boolean> FILTER_BY_SIZE =
+            imgBuffer -> {
+                GraphicsDevice gd = getLocalGraphicsEnvironment().getDefaultScreenDevice();
+                int width = gd.getDisplayMode().getWidth();
+                int height = gd.getDisplayMode().getHeight();
+                final boolean isNotTooSmall = imgBuffer.getHeight() >= height && imgBuffer.getWidth() >= width;
+                if (!isNotTooSmall)
+                    System.out.println("Image is too small");
+                return isNotTooSmall;
+            };
+    private final Func1<String, Observable<BufferedImage>> DOWNLOAD_IMAGE =
+            imgLink -> {
+                try {
+                    System.out.println("Downloading " + imgLink);
+                    URL url = new URL(imgLink);
+                    final BufferedImage image = ImageIO.read(url);
+                    return Observable.just(image);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return empty();
+                }
+            };
+    private final Func1<String, String> PARSE_URL = v -> {
+        if (ALLOWED_EXTENSIONS.stream().anyMatch(v::endsWith)) {
+            return v;
+        }
+        if (IMGUR.stream() //
+                .anyMatch(v::startsWith)) {
+            return v + ".png";
+        }
+        return v;
+    };
 
     public RedditWallpaperDownloaderService(String clientId, String clientSecret) throws OAuthException {
         this.clientId = clientId;
@@ -115,7 +146,7 @@ public class RedditWallpaperDownloaderService implements IWallpaperDownloaderSer
                 .take(1);
     }
 
-    private Func1<BufferedImage, Observable<IWallpaper>> writeFile(MessageDigest sha, Submission submission) {
+    private static Func1<BufferedImage, Observable<IWallpaper>> writeFile(MessageDigest sha, Submission submission) {
         return imgBuffer -> {
             try {
                 final File appPath = Utils.getAppPath(App.class);
@@ -123,7 +154,10 @@ public class RedditWallpaperDownloaderService implements IWallpaperDownloaderSer
                 if (!wallpapersPath.exists())
                     wallpapersPath.mkdir();
                 final String imagePath = appPath.getAbsolutePath() + TMP_WALLPAPER_FOLDER + "/" + Utils.hexEncode(sha.digest(submission.getUrl().getBytes())) + ".jpg";
-                ImageIO.write(imgBuffer, "jpg", new File(imagePath));
+                final File imageFile = new File(imagePath);
+                if(!imageFile.exists()) {
+                    ImageIO.write(imgBuffer, "jpg", imageFile);
+                }
                 logger.info("Changing wallpaper : " + submission.getUrl());
                 logger.info("Title : " + submission.getTitle());
                 logger.info("Subreddit : " + submission.getSubredditName());
@@ -135,42 +169,7 @@ public class RedditWallpaperDownloaderService implements IWallpaperDownloaderSer
         };
     }
 
-    private Func1<BufferedImage, Boolean> FILTER_BY_SIZE =
-            imgBuffer -> {
-                GraphicsDevice gd = getLocalGraphicsEnvironment().getDefaultScreenDevice();
-                int width = gd.getDisplayMode().getWidth();
-                int height = gd.getDisplayMode().getHeight();
-                final boolean isNotTooSmall = imgBuffer.getHeight() >= height && imgBuffer.getWidth() >= width;
-                if (!isNotTooSmall)
-                    System.out.println("Image is too small");
-                return isNotTooSmall;
-            };
-
-    private Func1<String, Observable<BufferedImage>> DOWNLOAD_IMAGE =
-            imgLink -> {
-                try {
-                    System.out.println("Downloading " + imgLink);
-                    URL url = new URL(imgLink);
-                    final BufferedImage image = ImageIO.read(url);
-                    return Observable.just(image);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return empty();
-                }
-            };
-
-    private Func1<String, String> PARSE_URL = v -> {
-        if (ALLOWED_EXTENSIONS.stream().anyMatch(v::endsWith)) {
-            return v;
-        }
-        if (IMGUR.stream() //
-                .anyMatch(v::startsWith)) {
-            return v + ".png";
-        }
-        return v;
-    };
-
-    private void waitInput() {
+    private static void waitInput() {
         System.out.println("Press ENTER to exit");
         try {
             System.in.read();

@@ -20,9 +20,9 @@ public class WallpaperChanger implements IWallpaperChanger {
 
     public void changeWallpaper(File file) {
         Observable.just(file)
-                .filter(f -> f.exists())
-                .filter(f -> f.isFile())
-                .map(f -> f.getAbsolutePath())
+                .filter(File::exists)
+                .filter(File::isFile)
+                .map(File::getAbsolutePath)
                 .subscribe(path -> {
                     SPI.INSTANCE.SystemParametersInfo(
                             new WinDef.UINT_PTR(SPI.SPI_SETDESKWALLPAPER),
@@ -43,7 +43,7 @@ public class WallpaperChanger implements IWallpaperChanger {
                 new WinDef.UINT_PTR(SPI.SPIF_UPDATEINIFILE | SPI.SPIF_SENDWININICHANGE));
     }
 
-    public interface SPI extends StdCallLibrary {
+    private interface SPI extends StdCallLibrary {
 
         //from MSDN article
         long SPI_SETDESKWALLPAPER = 20;
