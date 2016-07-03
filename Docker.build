@@ -12,4 +12,4 @@ ADD / /work
 RUN chmod +x gradlew && ./gradlew dist
 
 VOLUME /dist
-CMD cp -a /build/dist/* /dist
+CMD cp -a /work/build/dist/* /dist
