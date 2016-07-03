@@ -1,0 +1,11 @@
+FROM java:8
+
+MAINTAINER maugin.thomas@gmail.com
+
+WORKDIR /work
+ADD / /work
+
+RUN chmod +x gradlew && ./gradlew dist
+
+VOLUME /dist
+CMD cp -a /build/dist/* /dist
