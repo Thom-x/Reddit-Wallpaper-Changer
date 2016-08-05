@@ -1,9 +1,25 @@
-group 'fr.maugin.thomas'
-version '1.0-SNAPSHOT'
+buildscript {
+    repositories {
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
+    dependencies {
+        classpath fileTree(dir: '../../build/libs', include: '*.jar', excludes: ['*javadoc.jar', '*sources.jar'])
+        classpath 'gradle.plugin.edu.sc.seis.gradle:launch4j:1.6.1'
+        classpath fileTree(include: ['*.jar'], dir: 'libs')
+    }
+}
+
+plugins {
+  id 'net.researchgate.release' version '2.4.0'
+}
+
+group = group
+version = version
 
 apply plugin: 'java'
 apply plugin: 'edu.sc.seis.launch4j'
-
 
 jar {
     from {
@@ -42,19 +58,6 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
 
-buildscript {
-    repositories {
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
-    }
-    dependencies {
-        classpath fileTree(dir: '../../build/libs', include: '*.jar', excludes: ['*javadoc.jar', '*sources.jar'])
-        classpath 'gradle.plugin.edu.sc.seis.gradle:launch4j:1.6.1'
-        classpath fileTree(include: ['*.jar'], dir: 'libs')
-    }
-}
-
 task dist(type: Copy) {
     dependsOn 'launch4j'
     if (!file('build/dist/config.yaml').exists())
@@ -81,4 +84,40 @@ launch4j {
     jdkPreference = 'preferJre'
     jreRuntimeBits = '64/32'
     maxHeapSize = 20
+}
+
+release {
+    failOnCommitNeeded = true
+    failOnPublishNeeded = true
+    failOnSnapshotDependencies = true
+    failOnUnversionedFiles = true
+    failOnUpdateNeeded = true
+    revertOnFail = true
+    preCommitText = ''
+    preTagCommitMessage = '[Gradle Release Plugin] - pre tag commit: '
+    tagCommitMessage = '[Gradle Release Plugin] - creating tag: '
+    newVersionCommitMessage = '[Gradle Release Plugin] - new version commit: '
+    tagTemplate = 'v${version}'
+    versionPropertyFile = 'gradle.properties'
+    versionProperties = ['version']
+    buildTasks = ['dist']
+    scmAdapters = [
+        net.researchgate.release.GitAdapter,
+        net.researchgate.release.SvnAdapter,
+        net.researchgate.release.HgAdapter,
+        net.researchgate.release.BzrAdapter
+    ]
+
+    git {
+        requireBranch = 'master'
+        pushToRemote = 'origin'
+        pushToBranchPrefix = ''
+        commitVersionFileOnly = false
+    }
+
+    svn {
+        username = null
+        password = null
+        pinExternals = false   // allows to pin the externals when tagging, requires subversion client >= 1.9.0
+    }
 }

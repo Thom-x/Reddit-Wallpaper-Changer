@@ -1,0 +1,26 @@
+FROM isuper/java-oracle:jdk_8
+
+MAINTAINER maugin.thomas@gmail.com
+
+USER root
+
+RUN dpkg --add-architecture i386
+RUN apt-get update
+RUN apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386 git
+
+WORKDIR /work
+ADD / /work
+
+RUN git config --global user.email \"$GIT_EMAIL\"
+RUN git config --global user.name \"$GIT_USERNAME\"
+
+RUN echo "	Host github.com" >> /etc/ssh/ssh_config && \
+	echo "		User git" >> /etc/ssh/ssh_config && \
+	echo "		Hostname github.com" >> /etc/ssh/ssh_config && \
+	echo "		PreferredAuthentications publickey" >> /etc/ssh/ssh_config && \
+	echo "		Port 22" >> /etc/ssh/ssh_config && \
+	echo "		IdentityFile /work/.git/.ssh/id_rsa" >> /etc/ssh/ssh_config && \
+	echo "		StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \
+	echo "		UserKnownHostsFile=/dev/null" >> /etc/ssh/ssh_config
+
+CMD ls -la /work/.git/.ssh && chmod +x gradlew && ./gradlew release -Prelease.useAutomaticVersion=true && mkdir /dist && cp -a /work/build/dist/* /dist
