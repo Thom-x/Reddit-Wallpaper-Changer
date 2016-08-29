@@ -83,7 +83,7 @@ launch4j {
     jreMinVersion  = '1.8.0_00'
     jdkPreference = 'preferJre'
     jreRuntimeBits = '64/32'
-    maxHeapSize = 100
+    maxHeapSize = 512
 }
 
 release {
