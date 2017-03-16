@@ -9,7 +9,7 @@ RUN apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386
 WORKDIR /work
 ADD / /work
 
-RUN chmod +x gradlew && ./gradlew dist
+RUN chmod +x gradlew && bash ./gradlew dist
 
 VOLUME /dist
 CMD cp -a /work/build/dist/* /dist
