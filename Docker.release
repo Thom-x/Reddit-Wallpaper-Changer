@@ -23,5 +23,4 @@ RUN echo "	Host github.com" >> /etc/ssh/ssh_config && \
 	echo "		StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \
 	echo "		UserKnownHostsFile=/dev/null" >> /etc/ssh/ssh_config
 
-CMD ls -la /work/.git/.ssh && chmod +x gradlew && bash ./gradlew release -Prelease.useAutomaticVersion=true && mkdir
-/dist && cp -a /work/build/dist/* /dist
+CMD ls -la /work/.git/.ssh && chmod +x gradlew && bash ./gradlew release -Prelease.useAutomaticVersion=true && mkdir /dist && cp -a /work/build/dist/* /dist
