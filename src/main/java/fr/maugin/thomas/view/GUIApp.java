@@ -41,7 +41,7 @@ public class GUIApp extends Application {
 
         stage.setOnCloseRequest(e -> Platform.runLater(Platform::exit));
 
-        JavaFxObservable.fromObservableValue(stage.iconifiedProperty())
+        JavaFxObservable.valuesOf(stage.iconifiedProperty())
                 .filter(v -> v)
                 .subscribe(iconified -> {
                     stage.hide();

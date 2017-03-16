@@ -51,7 +51,7 @@ dependencies {
 
     compile fileTree(include: ['*.jar'], dir: 'libs')
 
-    compile 'io.reactivex:rxjavafx:2.0.2'
+    compile 'io.reactivex:rxjavafx:1.1.0'
 
     compile 'com.google.inject:guice:4.1.0'
 

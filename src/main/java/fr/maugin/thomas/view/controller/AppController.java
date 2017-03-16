@@ -95,7 +95,7 @@ public class AppController implements Initializable {
                 .filter(remaining -> remaining >= 0)
                 .map(Duration::ofSeconds)
                 .map(duration -> String.format("%d:%02d%n", duration.toMinutes(), duration.minusMinutes(duration.toMinutes()).getSeconds()))
-                .observeOn(JavaFxScheduler.getInstance())
+                .observeOn(JavaFxScheduler.platform())
                 .subscribe(text -> {
                     delay.setVisible(true);
                     delay.setText(text);
@@ -104,7 +104,7 @@ public class AppController implements Initializable {
                 });
 
         wallpaperObservable
-                .observeOn(JavaFxScheduler.getInstance())
+                .observeOn(JavaFxScheduler.platform())
                 .subscribe(wallpaper -> {
                     final Image image = new Image("file:///" + wallpaper.getPath());
                     next.setVisible(true);
