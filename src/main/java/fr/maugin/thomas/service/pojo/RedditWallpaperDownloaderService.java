@@ -42,7 +42,9 @@ import static rx.Observable.just;
  */
 public class RedditWallpaperDownloaderService implements IWallpaperDownloaderService {
 
-    private static final ArrayList<String> IMGUR = Lists.newArrayList("http://imgur.com/", "http://i.imgur.com/");
+    private static final ArrayList<String> IMGUR = Lists.newArrayList("https://i.imgur.com/", "https://imgur.com/",
+            "http://imgur.com/",
+            "http://i.imgur.com/");
     private static final ArrayList<String> DISALLOWED_EXTENSIONS = Lists.newArrayList("gif", "gifv");
     private static final ArrayList<String> ALLOWED_EXTENSIONS = Lists.newArrayList("png", "jpg");
     private static final String TMP_WALLPAPER_FOLDER = "/wallpapers";
