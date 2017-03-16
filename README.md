@@ -4,11 +4,11 @@ Change your wallpaper using subreddit hot submissions images.
 
 <img src="https://github.com/Thom-x/Reddit-Wallpaper-Changer/raw/master/doc/screen.png" alt="Screenshot">
 
-##Build
+## Build
 
 `gradlew.bat dist`
 
-##Configure
+## Configure
 
 Go to `build/dist`
 Edit `config.yaml` :
@@ -16,5 +16,5 @@ Edit `config.yaml` :
  - Add any subbredit you want to pull wallpapers from to the `subreddits:` list.
  - Change the `interval` in seconds.
 
-#Run
+# Run
 Double click on `reddit-wallpaper-changer.exe`, enjoy !
