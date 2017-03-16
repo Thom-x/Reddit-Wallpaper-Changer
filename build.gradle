@@ -41,21 +41,21 @@ repositories {
 }
 
 dependencies {
-    compile 'net.java.dev.jna:jna-platform:4.2.2'
+    compile 'net.java.dev.jna:jna-platform:4.4.0'
 
-    compile 'io.reactivex:rxjava:1.1.2'
+    compile 'io.reactivex:rxjava:1.2.7'
 
-    compile 'net.dean.jraw:JRAW:0.8.0'
+    compile 'net.dean.jraw:JRAW:0.9.0'
 
     compile 'org.yaml:snakeyaml:1.17'
 
     compile fileTree(include: ['*.jar'], dir: 'libs')
 
-    compile 'io.reactivex:rxjavafx:0.0.5'
+    compile 'io.reactivex:rxjavafx:2.0.2'
 
-    compile 'com.google.inject:guice:4.0'
+    compile 'com.google.inject:guice:4.1.0'
 
-    testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
 task dist(type: Copy) {
