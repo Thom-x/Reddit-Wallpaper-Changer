@@ -1,15 +1,22 @@
-FROM isuper/java-oracle:jdk_8
+FROM ubuntu
 
 MAINTAINER maugin.thomas@gmail.com
 
 RUN dpkg --add-architecture i386
+
 RUN apt-get update
+
+RUN apt-get install curl wget unzip zip -y
+RUN curl -s "https://get.sdkman.io" | bash
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+RUN source "$HOME/.sdkman/bin/sdkman-init.sh" && sdk install java 8.0.302.fx-zulu
+
 RUN apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386
 
 WORKDIR /work
 ADD / /work
 
-RUN chmod +x gradlew && bash ./gradlew dist
+RUN source "$HOME/.sdkman/bin/sdkman-init.sh" && chmod +x gradlew && ./gradlew dist
 
 VOLUME /dist
 CMD cp -a /work/build/dist/* /dist

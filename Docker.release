@@ -1,18 +1,20 @@
-FROM isuper/java-oracle:jdk_8
+FROM ubuntu
 
 MAINTAINER maugin.thomas@gmail.com
 
-USER root
-
+SHELL ["bash", "-c"]
 RUN dpkg --add-architecture i386
+
 RUN apt-get update
+
+RUN apt-get install curl wget unzip zip -y
+RUN curl -s "https://get.sdkman.io" | bash
+RUN source $HOME/.sdkman/bin/sdkman-init.sh && sdk install java 8.0.302.fx-zulu
+
 RUN apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386 git
 
 WORKDIR /work
 ADD / /work
-
-RUN git config --global user.email \"$GIT_EMAIL\"
-RUN git config --global user.name \"$GIT_USERNAME\"
 
 RUN echo "	Host github.com" >> /etc/ssh/ssh_config && \
 	echo "		User git" >> /etc/ssh/ssh_config && \
@@ -23,4 +25,4 @@ RUN echo "	Host github.com" >> /etc/ssh/ssh_config && \
 	echo "		StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \
 	echo "		UserKnownHostsFile=/dev/null" >> /etc/ssh/ssh_config
 
-CMD ls -la /work/.git/.ssh && chmod +x gradlew && bash ./gradlew release -Prelease.useAutomaticVersion=true && mkdir /dist && cp -a /work/build/dist/* /dist
+CMD source $HOME/.sdkman/bin/sdkman-init.sh && git config --global user.email \\$GIT_EMAIL && git config --global user.name \\$GIT_USERNAME && ls -la /work/.git/.ssh && chmod +x gradlew && ./gradlew release -Prelease.useAutomaticVersion=true && mkdir /dist && cp -a /work/build/dist/* /dist
